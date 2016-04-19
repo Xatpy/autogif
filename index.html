@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script type="text/javascript" src="./libgif/libgif.js"></script>
+		<script type="text/javascript" src="./libgif/rubbable.js"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<title>
+			Example gif
+		</title>
+
+		<script src="./jsgif/b64.js"></script>
+		<script src="./jsgif/LZWEncoder.js"></script>
+		<script src="./jsgif/NeuQuant.js"></script>
+		<script src="./jsgif/GIFEncoder.js"></script>
+
+	</head>
+
+	<body>
+		<center>
+			<div id="inputDiv">
+				<h1>Input</h1>
+				<img id="atleti" src="./canvas/atletico.png" alt="The Scream">
+				<input type="file" id="files" name="files[]" multiple/>
+				<div id="listInputImg"></div>
+			</div>
+			<div id="divModifyGif">
+				<h1>Record the gif</h1>
+				<button onclick="movida()">Crear gif</button>
+				<br> <br>
+				<img id="example1" src="./assets/rub_test_preview.jpg" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" />
+				<br>			
+
+				<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
+				<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
+				<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
+				<a href="javascript:;" onmousedown="sup1.move_relative(1); return false;">Step forward</a> |
+				<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
+				<a href="javascript:;" onmousedown="recording()">Record</a>
+
+				<canvas id="myCanvas" width="320" height="233" style="display:none;"></canvas>
+			</div>
+			<div id="divResult">
+				<h1>Output</h1>
+				<img id="image" width="320" height="233">
+			</div>
+
+			<script type="text/javascript">
+
+				var sup1 = new SuperGif({ gif: document.getElementById('example1') } );
+				sup1.load(function hola() { 
+					var canvas = document.getElementById('cabesa');
+					canvas.addEventListener("mousedown", function(evt) {
+						getPosition(evt) },false); 
+					});
+
+				var recordedPositions = [];
+				var isRecording = false;
+
+				function movida(){
+					var c=document.getElementById("myCanvas");
+    				var ctx=c.getContext("2d");
+    				var img = document.getElementById('cabesa');
+
+
+					var encoder = new GIFEncoder();
+					encoder.setRepeat(0); //auto-loop
+					encoder.setDelay(10);
+					console.log(encoder.start());
+
+					//var imgAtleti = document.getElementById("atleti");
+					var img = document.getElementById("testImg");
+
+    				var data = [];
+    				debugger
+    				var len = sup1.get_length();
+    				for (var i=0; i < len; ++i) {
+    					sup1.move_to(i);
+    					data.push(sup1.get_canvas());
+    					ctx.drawImage(sup1.get_canvas(),0,0);
+    					if (i < recordedPositions.length) 
+    					{
+							debugger
+							ctx.drawImage(img, recordedPositions[i].x, recordedPositions[i].y, img.width, img.width);
+							//ctx.drawImage(imgAtleti, 50, 50, 50, 50);	    							
+    					}    					
+						console.log(encoder.addFrame(ctx));
+
+    				}
+    				console.log(data.length);
+
+    				encoder.finish();
+					document.getElementById('image').src = 'data:image/gif;base64,'+ encode64(encoder.stream().getData());
+				}
+
+				function getPosition(evt)
+				{
+					if (!isRecording)
+					{
+						alert("NOT RECORDING!");
+						return;
+					}
+					var canvas = document.getElementById('cabesa');
+					var mousePos = getMousePos(canvas, evt);
+
+					//alert("x:" + mousePos.x + " y:" + mousePos.y);
+
+					//var imgAtleti = document.getElementById("atleti");
+					var img = document.getElementById("testImg");
+					var x = mousePos.x - (img.width / 2);
+					var y = mousePos.y - (img.height / 2);
+ 
+ 					// 25 = 50 / 2; 50 is the hardcoded value when we draw
+					recordedPositions.push( {"x": x, "y": y} );
+					sup1.move_relative(1);
+				}
+
+				function recording()
+				{
+					sup1.move_to(0); 
+					isRecording = true;
+
+					return false;
+				}
+
+				function getMousePos(canvas, evt) {
+			        var rect = canvas.getBoundingClientRect();
+			        return {
+			          x: evt.clientX - rect.left,
+			          y: evt.clientY - rect.top
+			        };
+			      }
+
+
+
+
+			    // ------------ INPUT
+				function handleFileSelect(evt) {
+					var files = evt.target.files; // FileList object
+
+					// files is a FileList of File objects. List some properties.
+					var output = [];
+					for (var i = 0, f; f = files[i]; i++) {
+					  // Only process image files.
+				      if (!f.type.match('image.*')) {
+				        continue;
+				      }
+
+				      var reader = new FileReader();
+
+				      // Closure to capture the file information.
+				      reader.onload = (function(theFile) {
+				        return function(e) {
+				          // Render thumbnail.
+				          var span = document.createElement('span');
+				          span.innerHTML = ['<img class="thumb" src="', e.target.result,
+				                            '" title="', escape(theFile.name), 
+				                            '" style=" max-height: 200px; max-width: 200px;" id="testImg"/>' 
+				                            ].join('');
+				          document.getElementById('listInputImg').insertBefore(span, null);
+				        };
+				      })(f);
+
+				      // Read in the image file as a data URL.
+				      reader.readAsDataURL(f);
+					}
+					//document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+				}
+
+				document.getElementById('files').addEventListener('change', handleFileSelect, false);
+			</script>
+
+		</center>
+
+	</body>
+
+</html>
