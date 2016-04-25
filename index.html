@@ -7,7 +7,7 @@
 		<script type="text/javascript" src="./libgif/rubbable.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 		<title>
-			Example gif
+			Auto gif
 		</title>
 
 		<script src="./jsgif/b64.js"></script>
@@ -21,25 +21,28 @@
 		<center>
 			<div id="inputDiv">
 				<h1>Input</h1>
-				<img id="atleti" src="./canvas/atletico.png" alt="The Scream">
 				<input type="file" id="files" name="files[]" multiple/>
 				<div id="listInputImg"></div>
 			</div>
 			<div id="divModifyGif">
-				<h1>Record the gif</h1>
-				<button onclick="movida()">Crear gif</button>
-				<br> <br>
-				<img id="example1" src="./assets/rub_test_preview.jpg" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" />
-				<br>			
+				<div id="inputGif">
+					<h1>Record the gif</h1>
+					<button onclick="movida()">Crear gif</button>
+					<br> <br>
+					<img id="canvas_libgif" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" />
+					<br>			
 
-				<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
-				<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
-				<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
-				<a href="javascript:;" onmousedown="sup1.move_relative(1); return false;">Step forward</a> |
-				<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
-				<a href="javascript:;" onmousedown="recording()">Record</a>
-
-				<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
+					<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
+					<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
+					<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
+					<a href="javascript:;" onmousedown="sup1.move_relative(1); return false;">Step forward</a> |
+					<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
+					<a href="javascript:;" onmousedown="recording()">Record</a>
+				</div>
+				<div id="preview">
+					<h2>Preview</h2>
+					<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
+				</div>
 			</div>
 			<div id="divResult">
 				<h1>Output</h1>
@@ -49,11 +52,12 @@
 			<script type="text/javascript">
 
 				//-------------- GLOBALS --------------
-				var selectedInput = -1;
+				var selectedImageInput = 1;
 
-				var sup1 = new SuperGif({ gif: document.getElementById('example1') } );
+				var sup1 = new SuperGif({ gif: document.getElementById('canvas_libgif') } );
 				sup1.load(function hola() { 
 					var canvas = document.getElementById('cabesa');
+					drawImageInCanvas(sup1.get_canvas());
 					canvas.addEventListener("mousedown", function(evt) {
 						getPosition(evt) },false); 
 					});
@@ -71,8 +75,6 @@
 					encoder.setDelay(10);
 					console.log(encoder.start());
 
-					//var imgAtleti = document.getElementById("atleti");
-
     				var data = [];
     				debugger
     				var len = sup1.get_length();
@@ -84,7 +86,6 @@
     					{
 							var img = document.getElementById(recordedSteps[i].image);
 							ctx.drawImage(img, recordedSteps[i].pos.x, recordedSteps[i].pos.y, img.width, img.width);
-							//ctx.drawImage(imgAtleti, 50, 50, 50, 50);	    							
     					}    					
 						console.log(encoder.addFrame(ctx));
 
@@ -100,12 +101,14 @@
 					var canvas = document.getElementById('cabesa');
 					var mousePos = getMousePos(canvas, evt);
 
-					//alert("x:" + mousePos.x + " y:" + mousePos.y);
 					var position = {};
 
-					//var imgAtleti = document.getElementById("atleti");
-					//var img = document.getElementById("inputImg");
-					var img = document.getElementById(selectedInput);
+					var img = document.getElementById(selectedImageInput);
+					if (img === null) {
+						alert('No input images selected');
+						return;
+					}
+
 					position.x = mousePos.x - (img.width / 2);
 					position.y= mousePos.y - (img.height / 2);
 
@@ -117,7 +120,7 @@
 					}
  
  					// 25 = 50 / 2; 50 is the hardcoded value when we draw
- 					var step = { pos: position , image: selectedInput}
+ 					var step = { pos: position , image: selectedImageInput}
 					recordedSteps.push( step );
 					sup1.move_relative(1);
 				}
@@ -126,10 +129,22 @@
 				{
 					var c=document.getElementById("myCanvas");
     				var ctx=c.getContext("2d");
-					var img = document.getElementById("inputImg");
+					var img = document.getElementById(selectedImageInput);
+
+					if (img === null) {
+						alert("img is null. Select one image");
+						return;
+					}
 
 					ctx.drawImage(sup1.get_canvas(),0,0);
 					ctx.drawImage(img, position.x, position.y, img.width, img.width);  
+				}
+
+				function drawImageInCanvas(canvas)
+				{
+					var c=document.getElementById("myCanvas");
+    				var ctx=c.getContext("2d");
+					ctx.drawImage(canvas,0,0);
 				}
 
 				function recording()
@@ -148,11 +163,10 @@
 					};
 				}
 
-				function inputSelected(e)
+				// Funciton to select the input image that will be overwrite
+				function selectInput(e)
 				{
-					var elementId = e.target ? e.target.id : e.srcElement.id;
-					console.log(elementId);
-					selectedInput = elementId;
+					selectedImageInput = e.target ? e.target.id : e.srcElement.id;
 				}
 
 
@@ -161,7 +175,7 @@
 					var files = evt.target.files; // FileList object
 
 					// files is a FileList of File objects. List some properties.
-				      var num = 0;
+			      	var num = 0;
 
 					var output = [];
 					for (var i = 0, f; f = files[i]; i++) {
@@ -184,9 +198,10 @@
 				          span.innerHTML = ['<img class="thumb" src="', e.target.result,
 				                            '" title="', escape(theFile.name), 
 				                            '" style=" max-height: 200px; max-width: 200px;',
+				                            'margin: 50px',
 				                            '" id="inputImg_', num.toString(),'"/>' 
 				                            ].join('');
-				          span.addEventListener('mousedown', inputSelected, false);
+				          span.addEventListener('mousedown', selectInput, false);
 				          document.getElementById('listInputImg').insertBefore(span, null);
 				        };
 				        console.log('a');
