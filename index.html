@@ -15,6 +15,11 @@
 		<script src="./jsgif/NeuQuant.js"></script>
 		<script src="./jsgif/GIFEncoder.js"></script>
 
+		<style>
+			#loading {width: 100%;height: 100%;top: 0px;left: 0px;position: fixed;display: block; z-index: 99}
+			#loading-image {position: absolute;top: 40%;left: 45%;z-index: 100} 
+		</style>
+
 	</head>
 
 	<body>
@@ -27,7 +32,7 @@
 			<div id="divModifyGif">
 				<div id="inputGif">
 					<h1>Record the gif</h1>
-					<button onclick="movida()">Crear gif</button>
+					<button onclick="createGif()">Crear gif</button>
 					<br> <br>
 					<img id="canvas_libgif" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" />
 					<br>			
@@ -49,7 +54,17 @@
 				<img id="image" width="320" height="233">
 			</div>
 
+			<div id="loading">
+				<img id="loading-image" src="./assets/loading.gif" alt="Loading..." />
+			</div>  
+
 			<script type="text/javascript">
+
+				window.onload = function(){ 
+					showLoadingSpinner(false);
+				}
+
+				
 
 				//-------------- GLOBALS --------------
 				var selectedImageInput = 1;
@@ -65,7 +80,8 @@
 				var recordedSteps = [];
 				var isRecording = false;
 
-				function movida(){
+				function createGif(){
+
 					var c=document.getElementById("myCanvas");
     				var ctx=c.getContext("2d");
     				var img = document.getElementById('cabesa');
@@ -76,9 +92,11 @@
 					console.log(encoder.start());
 
     				var data = [];
-    				debugger
     				var len = sup1.get_length();
-    				for (var i=0; i < len; ++i) {
+
+					showLoadingSpinner(true);
+
+    				function addImageToGif(i) {
     					sup1.move_to(i);
     					data.push(sup1.get_canvas());
     					ctx.drawImage(sup1.get_canvas(),0,0);
@@ -87,13 +105,29 @@
 							var img = document.getElementById(recordedSteps[i].image);
 							ctx.drawImage(img, recordedSteps[i].pos.x, recordedSteps[i].pos.y, img.width, img.width);
     					}    					
-						console.log(encoder.addFrame(ctx));
-
+						encoder.addFrame(ctx);
     				}
-    				console.log(data.length);
 
-    				encoder.finish();
-					document.getElementById('image').src = 'data:image/gif;base64,'+ encode64(encoder.stream().getData());
+    				function gifCreated() {
+						console.log("se acaboooooo");
+			        	encoder.finish();
+						document.getElementById('image').src = 'data:image/gif;base64,'+ encode64(encoder.stream().getData());
+						showLoadingSpinner(false);
+    				}
+
+
+    				var i = 0;
+    				// Reference: http://blog.jeremyaldrich.net/en/latest/nonblocking_forloop_javascript.html
+					function loopCreateGifWithoutBlocking(i) {
+					    addImageToGif(i);
+					    if (i < len) {
+					        setTimeout(function() { loopCreateGifWithoutBlocking( i + 1); }, 5);
+					    } else {
+					    	gifCreated();
+					    }
+					};
+					loopCreateGifWithoutBlocking(i);
+    				
 				}
 
 				function getPosition(evt)
@@ -163,10 +197,32 @@
 					};
 				}
 
-				// Funciton to select the input image that will be overwrite
+				// Function to select the input image that will be overwrite
 				function selectInput(e)
 				{
-					selectedImageInput = e.target ? e.target.id : e.srcElement.id;
+					debugger
+					var newInput = e.target ? e.target.id : e.srcElement.id;
+
+					if (newInput === selectedImageInput){
+						return;
+					}
+					selectedImageInput = newInput;
+
+					var childs = document.getElementById("listInputImg").childNodes;
+					if (childs !== null) {
+						for (var i = 0; i < childs.length; ++i) {
+							var tempId = childs[i].childNodes[0].id;
+							if (tempId === selectedImageInput) {
+								childs[i].childNodes[0].style.border = "solid #0000FF 10px";
+							} else{
+								childs[i].childNodes[0].style.border = "none";
+							}
+						}
+					}
+				}
+
+				function showLoadingSpinner(value) {
+					document.getElementById("loading").style.display = value ? "block": "none" ;
 				}
 
 
@@ -191,9 +247,6 @@
 				      reader.onload = (function(theFile, num) {
 		        		
 				        return function(e) {
-				          // Render thumbnail.
-				          debugger
-
 				          var span = document.createElement('span');
 				          span.innerHTML = ['<img class="thumb" src="', e.target.result,
 				                            '" title="', escape(theFile.name), 
