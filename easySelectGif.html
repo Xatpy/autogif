@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  		<title>Gifer</title>
+  		<style>
+			.wrapper, html, body {
+			    height:100%;
+			    margin:0;
+			}
+
+			.flexcontainer {
+				display: -webkit-box;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+				display: -webkit-flexbox;
+
+				-webkit-flex-align: center;
+				-webkit-flex-flow: column;
+				text-align: center;
+
+
+		  		height: 100vh;
+			}
+
+			.nav {
+				height:5vh;
+			}
+
+			.preview {
+				display: flex;
+				justify-content: center;
+				flex-direction: column;
+				text-align: center;
+
+				height: 35vh;
+			}
+			.gallery {
+				justify-content: center;
+				flex-direction: column;
+				text-align: center;
+
+		   		height: 60vh;
+		   		overflow-y : scroll;
+			}
+
+  		</style>
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="flexcontainer">
+				<div class="nav"> nav </div>
+				<div class="preview"> preview </div>
+				<div class="gallery"> select 
+		   			<img style="max-width:90%;padding: 5px;"src="./assets/aniuska.gif"></img>
+		   			<img src="./assets/kP.gif"></img>
+		   			<img src="./assets/rub_test.gif"></img>
+				</div>
+			</div>
+
+		</div>
+	</body>
+</html>
