@@ -5,6 +5,10 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<script type="text/javascript" src="./libgif/libgif.js"></script>
 		<script type="text/javascript" src="./libgif/rubbable.js"></script>
+		<script type="text/javascript" src="./noUiSlider/nouislider.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./noUiSlider/nouislider.min.css">
+
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
 		<title>
@@ -33,7 +37,9 @@
 	</head>
 
 	<body>
+
 		<center>
+
 			<div id="inputDiv">
 				<h1>Input</h1>
 				<input type="file" id="files" name="files[]" multiple/>
@@ -41,14 +47,14 @@
 				<button onclick="resize(true)">+</button>
 				<button onclick="resize(false)">-</button>
 			</div>
+
 			<div id="divModifyGif">
 				<div id="inputGif">
 					<h1>Record the gif</h1>
 					<button onclick="createGif()">Crear gif</button>
 					<br> <br>
-					<img id="canvas_libgif" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" />
+					<img id="canvas_libgif" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" style="display:none;"/>
 					<br>
-
 					<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
 					<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
 					<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
@@ -56,9 +62,13 @@
 					<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
 					<a href="javascript:;" onmousedown="recording()">Record</a>
 				</div>
+		</center>
 				<div id="preview">
 					<h2>Preview</h2>
 					<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
+					<div id="slider"></div>
+					<div id="slider-range-value"></div>
+
 				</div>
 			</div>
 			<div id="divResult">
@@ -69,13 +79,14 @@
 			<div id="loading">
 				<br><br>
 				<h2>Loading...</h2>
-				<img id="loading-image" src="./assets/loading.gif" alt="Loading..." />
+				<!--<img id="loading-image" src="./assets/loading.gif" alt="Loading..." />-->
 			</div>  
 
 			<script type="text/javascript">
 
 				//-------------- Globals variables --------------
 				var selectedImageInput = 1;
+				var sup1;
 
 				// -------------- Functions --------------
 
@@ -83,13 +94,20 @@
 					showLoadingSpinner(false);
 				}
 
-				var sup1 = new SuperGif({ gif: document.getElementById('canvas_libgif') } );
+				sup1 = new SuperGif({ gif: document.getElementById('canvas_libgif') } );
 				sup1.load(function hola() { 
+					createSlider(sup1.get_length());
 					var canvas = document.getElementById('cabesa');
 					drawImageInCanvas(sup1.get_canvas());
 					canvas.addEventListener("mousedown", function(evt) {
-						getPosition(evt) },false); 
+						getPosition(evt, 'cabesa') },false); 
+					var canvasPreview = document.getElementById('myCanvas');
+					canvasPreview.addEventListener("mousedown", function(evt) {
+						getPosition(evt, 'myCanvas') },false);
+					document.getElementById("cabesa").style.display = "none"
 					});
+
+				document.getElementById("cabesa").style.display = "none"
 
 				var recordedSteps = [];
 				var isRecording = false;
@@ -144,9 +162,9 @@
     				
 				}
 
-				function getPosition(evt)
+				function getPosition(evt, canvasId)
 				{
-					var canvas = document.getElementById('cabesa');
+					var canvas = document.getElementById(canvasId);
 					var mousePos = getMousePos(canvas, evt);
 
 					var position = {};
@@ -167,10 +185,7 @@
 					}
  
  					// 25 = 50 / 2; 50 is the hardcoded value when we draw
- 					var step =  { 	
- 									pos: position , image: selectedImageInput, 
- 									width: img.width , height : img.height
- 								}
+ 					var step =  {  pos: position , image: selectedImageInput, width: img.width , height : img.height }
 					recordedSteps.push( step );
 					sup1.move_relative(1);
 				}
@@ -298,10 +313,37 @@
 					document.getElementById("loading").style.display = value ? "block": "none" ;
 				}
 
+				function createSlider(maxSteps) {
+					var rangeSlider = document.getElementById('slider');
+					noUiSlider.create(rangeSlider, {
+						start: [ 0 ],
+						step: 1,
+						connect : 'lower',
+						range: {
+						  'min': 0,
+						  'max': maxSteps
+						}
+					});
+
+					var rangeSliderValueElement = document.getElementById('slider-range-value');
+
+					rangeSlider.noUiSlider.on('update', function( values, handle ) {
+						rangeSliderValueElement.innerHTML = parseInt(values[handle]);
+					});
+
+					rangeSlider.noUiSlider.on('change', function( values, handle){
+						var valueSelected = parseInt(values[handle]);
+						sup1.move_to(valueSelected);
+						drawImageInCanvas(sup1.get_canvas());
+						return false;
+					});
+
+				}
+
+
 				document.getElementById('files').addEventListener('change', handleFileSelect, false);
 			</script>
 
-		</center>
 
 	</body>
 
