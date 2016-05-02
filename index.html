@@ -87,6 +87,7 @@
 				//-------------- Globals variables --------------
 				var selectedImageInput = 1;
 				var sup1;
+				var rangeSlider;
 
 				// -------------- Functions --------------
 
@@ -110,7 +111,7 @@
 				document.getElementById("cabesa").style.display = "none"
 
 				var recordedSteps = [];
-				var isRecording = false;
+				var isRecording = true;
 
 				function createGif(){
 
@@ -177,6 +178,9 @@
 					position.x = mousePos.x - (img.width / 2);
 					position.y= mousePos.y - (img.height / 2);
 
+					overlap(position);
+
+
 					if (!isRecording)
 					{
 						//alert("NOT RECORDING!");
@@ -186,8 +190,11 @@
  
  					// 25 = 50 / 2; 50 is the hardcoded value when we draw
  					var step =  {  pos: position , image: selectedImageInput, width: img.width , height : img.height }
-					recordedSteps.push( step );
+					//recordedSteps.push( step );
+					recordedSteps[sup1.get_current_frame()] = step;
 					sup1.move_relative(1);
+
+					rangeSlider.noUiSlider.set(sup1.get_current_frame());
 				}
 
 				function overlap(position)
@@ -228,17 +235,7 @@
 					};
 				}
 
-				// Function to select the input image that will be overwrite
-				function selectInput(e)
-				{
-					debugger
-					var newInput = e.target ? e.target.id : e.srcElement.id;
-
-					if (newInput === selectedImageInput){
-						return;
-					}
-					selectedImageInput = newInput;
-
+				function addBorderToSelectedInput(selectedImageInput) {
 					var childs = document.getElementById("listInputImg").childNodes;
 					if (childs !== null) {
 						for (var i = 0; i < childs.length; ++i) {
@@ -250,6 +247,20 @@
 							}
 						}
 					}
+				}
+
+				// Function to select the input image that will be overwrite
+				function selectInput(e)
+				{
+					debugger
+					var newInput = e.target ? e.target.id : e.srcElement.id;
+
+					if (newInput === selectedImageInput){
+						return;
+					}
+					selectedImageInput = newInput;
+
+					addBorderToSelectedInput(selectedImageInput);
 				}
 
 			    // ------------ INPUT
@@ -271,17 +282,22 @@
 
 				      // Closure to capture the file information.
 				      reader.onload = (function(theFile, num) {
-		        		
 				        return function(e) {
 				          var span = document.createElement('span');
+				          var id = "inputImg_" + num.toString();
 				          span.innerHTML = ['<img class="thumb" src="', e.target.result,
 				                            '" title="', escape(theFile.name), 
 				                            '" style=" max-height: 200px; max-width: 200px;',
 				                            'margin: 50px',
-				                            '" id="inputImg_', num.toString(),'"/>' 
+				                            '" id="', id,'"/>' 
 				                            ].join('');
 				          span.addEventListener('mousedown', selectInput, false);
 				          document.getElementById('listInputImg').insertBefore(span, null);
+				          if (num === 1) {
+				          	// Select the fir st element automatically
+							selectedImageInput = id;
+				          	addBorderToSelectedInput(selectedImageInput);
+				          }
 				        };
 				        console.log('a');
 				      })(f, num);
@@ -314,7 +330,7 @@
 				}
 
 				function createSlider(maxSteps) {
-					var rangeSlider = document.getElementById('slider');
+					rangeSlider = document.getElementById('slider');
 					noUiSlider.create(rangeSlider, {
 						start: [ 0 ],
 						step: 1,
@@ -335,6 +351,10 @@
 						var valueSelected = parseInt(values[handle]);
 						sup1.move_to(valueSelected);
 						drawImageInCanvas(sup1.get_canvas());
+
+						if (recordedSteps[sup1.get_current_frame()] !== undefined) {
+							overlap(recordedSteps[sup1.get_current_frame()].pos);
+						}
 						return false;
 					});
 
