@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans|Lobster' rel='stylesheet' type='text/css'>
+  		
+  		<link rel="shortcut icon" href="./assets/clap.png" />
+
+
+		<script type="text/javascript" src="./libgif/libgif.js"></script>
+		<script type="text/javascript" src="./libgif/rubbable.js"></script>
+
+		<title>
+			Rajoy te aplaude
+		</title>
+
+		<script src="./jsgif/b64.js"></script>
+		<script src="./jsgif/LZWEncoder.js"></script>
+		<script src="./jsgif/NeuQuant.js"></script>
+		<script src="./jsgif/GIFEncoder.js"></script>
+
+		<style>
+			#loading {	position:fixed;
+			    top: 50%;
+			    left: 50%;
+			    width: 30em;
+			    height: 18em;
+			    margin-top: -9em; 
+			    margin-left: -15em; 
+			    border: 1px solid #ccc;
+			    background-color: #f3f3f3;
+			}
+			#loading-image { position: absolute; top: 40%; left: 45%; z-index: 100} 
+
+			body {
+				font-family: 'Open Sans', sans-serif;
+				background-color: #FFFFF5;
+			}
+
+			.button {
+			    background-color: #008CBA;
+			    border: none;
+			    color: white;
+			    padding: 15px 32px;
+			    text-align: center;
+			    text-decoration: none;
+			    display: inline-block;
+			    font-size: 16px;
+			    border-radius: 4px;
+			    cursor: pointer;
+			}
+
+			.button:hover {
+			    background-color: #5BC5E8; 
+			    color: white;
+			}
+			h1 {
+				font-family: 'Lobster', cursive;
+				font-size:58px;
+			}
+			h1 img {float:left;margin:0 5px 0 0}
+		</style>
+
+	</head>
+
+	<body>
+		<center>
+			<div id="inputDiv">
+				<div style="max-width:70%;">
+				<h1><img src="./assets/start.gif" rel:auto_play="0" width="50" height="50" style="display:inline;font-size:60px;border-style: solid;"/>
+					Rajoy te aplaude
+					<img src="./assets/end.gif" rel:auto_play="0" width="50" height="50" style="display:inline;float:right;border-style: solid;"/>
+				</h1>
+				</div>
+				<h3>Selecciona el <strong><b>.GIF</b><strong> que quieres que Rajoy aplauda:</h3>
+				<input type="file" id="files" name="files[]" multiple/>
+				<br> 
+				<div id="listInputImg"></div>
+				<br> 
+			</div>
+
+			<div id="divModifyGif">
+				<div id="inputGif">
+					<br>
+					<button onclick="createGif()" id="btnCreateGif" class="button" disabled>Crear gif</button>
+					<br> 
+					<img id="canvas_libgif" rel:animated_src="./assets/start.gif" rel:auto_play="0" width="480" height="270" style="display:none;"/>
+					<img id="canvas_gifUser" rel:animated_src="./assets/usss.gif" rel:auto_play="0" width="480" height="270" style="display:none;"/>
+					<img id="canvas_gifEnd" rel:animated_src="./assets/end.gif" rel:auto_play="0" width="480" height="270" style="display:none;"/>
+					<br>
+				</div>
+				<div id="preview">
+					<canvas id="myCanvas" width="480" height="270" style="display:none;"></canvas>
+				</div>
+			</div>
+			<div id="divResult">
+				<img id="image" >
+			</div>
+
+			<div id="loading">
+				<br><br>
+				<h2 style="text-align: center;">Cargando las chuchesh...</h2>
+				<img src="./assets/spiral.gif"></img>
+			</div>  
+		</center>
+
+			<script type="text/javascript">
+				//-------------- Globals variables --------------
+				var supGifStart;
+				var supGifUser;
+				var supGifEnd;
+				var contGif = 0;
+
+				// -------------- Functions --------------
+
+				window.onload = function(){
+					showLoadingSpinner(false);
+				}
+
+				supGifStart = new SuperGif({ gif: document.getElementById('canvas_libgif') } );
+				supGifStart.load(function hola() { 
+					var canvas = document.getElementById('contGif_0');
+					drawImageInCanvas(supGifStart.get_canvas());
+					var canvasPreview = document.getElementById('myCanvas');
+					document.getElementById("contGif_0").style.display = "none";
+				});
+
+				supGifEnd = new SuperGif({ gif: document.getElementById('canvas_gifEnd') } );
+				supGifEnd.load(function hola() { 
+					var canvas = document.getElementById('contGif_1');
+					drawImageInCanvas(supGifEnd.get_canvas());
+					var canvasPreview = document.getElementById('myCanvas');
+					document.getElementById("contGif_1").style.display = "none";
+				});
+
+				document.getElementById("contGif_0").style.display = "none";
+				document.getElementById("contGif_1").style.display = "none";
+
+				function createGif(){
+					var c=document.getElementById("myCanvas");
+    				var ctx=c.getContext("2d");
+    				var img = document.getElementById('cabesa');
+
+					var encoder = new GIFEncoder();
+					encoder.setRepeat(0); //auto-loop
+					encoder.setDelay(12);
+					console.log(encoder.start());
+
+    				var data = [];
+    				var dataInput = [];
+    				//var len = supGifStart.get_length() + supGifUser.get_length();
+    				var len = supGifStart.get_length() + supGifUser.get_length() + supGifEnd.get_length();
+
+					showLoadingSpinner(true);
+
+    				function addImageToGif(i) {
+    					var lengthBase = supGifStart.get_length();
+    					if (i <= lengthBase) {
+    						supGifStart.move_to(i);
+    						data.push(supGifStart.get_canvas());
+    						ctx.drawImage(supGifStart.get_canvas(),0,0);  
+    					} else if ( (i > supGifStart.get_length()) && (i < supGifStart.get_length() + supGifUser.get_length()) ) {
+    						supGifUser.move_to(i + 1 - lengthBase);
+    						dataInput.push(supGifUser.get_canvas());
+    						ctx.drawImage(supGifUser.get_canvas(),0,0,supGifStart.get_canvas().width,supGifStart.get_canvas().height);
+    					} else {
+    						supGifEnd.move_to(i + 1 - (lengthBase + supGifUser.get_length() ));
+    						dataInput.push(supGifEnd.get_canvas());
+    						ctx.drawImage(supGifEnd.get_canvas(),0,0,supGifStart.get_canvas().width,supGifStart.get_canvas().height);
+    					}
+
+						encoder.addFrame(ctx);
+    				}
+
+    				function gifCreated() {
+			        	encoder.finish();
+						document.getElementById('image').src = 'data:image/gif;base64,'+ encode64(encoder.stream().getData());
+						showLoadingSpinner(false);
+
+						document.getElementById("contGif_2").style.display = "none";
+    				}
+
+    				var i = 0;
+    				// Reference: http://blog.jeremyaldrich.net/en/latest/nonblocking_forloop_javascript.html
+					function loopCreateGifWithoutBlocking(i) {
+					    addImageToGif(i);
+
+					    if (i < len) {
+					        setTimeout(function() { loopCreateGifWithoutBlocking( i + 1); }, 5);
+					    } else {
+					    	/*var c = document.getElementById("myCanvas");
+    						var ctx = c.getContext("2d");
+    						var canvas = document.getElementById("myCanvas");
+    						ctx.clearRect(0, 0, canvas.width, canvas.height);
+							var img = document.getElementById("inputImg_1");
+					    	for (var j=0 ; j < 5; ++j) {
+								ctx.drawImage(img,0,0);
+								encoder.addFrame(ctx);
+					    	}*/
+					    	gifCreated();
+					    }
+					};
+					loopCreateGifWithoutBlocking(i);				
+				}
+
+				function drawImageInCanvas(canvas){
+					var c=document.getElementById("myCanvas");
+    				var ctx=c.getContext("2d");
+					ctx.drawImage(canvas,0,0);
+				}
+
+				function overlap(position)
+				{
+					var c = document.getElementById("myCanvas");
+    				var ctx = c.getContext("2d");
+					var img = document.getElementById("inputImg_1");
+
+					if (img === null) {
+						alert("img is null. Select one image");
+						return;
+					}
+
+					ctx.drawImage(supGifStart.get_canvas(),0,0);
+					ctx.drawImage(img, position.x, position.y, img.width, img.width);  
+				}
+
+			    // ------------ INPUT
+				function handleFileSelect(evt) {
+					var files = evt.target.files; // FileList object
+
+					// files is a FileList of File objects. List some properties.
+			      	var num = 0;
+
+					var output = [];
+					for (var i = 0, f; f = files[i]; i++) {
+					  // Only process image files.
+				      if (!f.type.match('image.*')) {
+				        continue;
+				      }
+
+				      var reader = new FileReader();
+				      num += 1;
+
+				      // Closure to capture the file information.
+				      reader.onload = (function(theFile, num) {
+				        return function(e) {			       	
+							var span = document.createElement('span');
+							var id = "inputImg_" + num.toString();
+							span.innerHTML = ['<img class="thumb" src="', e.target.result,
+							                '" title="', escape(theFile.name), 
+							                //'" style=" height:'+supGifStart.get_canvas().height+'px;width:'+supGifStart.get_canvas().height+'px;',
+							                ' style=',
+							                'margin: 50px',
+							                '" id="', id,'"/>' 
+							                ].join('');
+							document.getElementById('listInputImg').insertBefore(span, null);
+
+							loadUserGif();
+				        };
+
+				      })(f, num);
+
+				      // Read in the image file as a data URL.
+				      reader.readAsDataURL(f);
+
+					}
+					//document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+				}
+
+				function loadUserGif(){
+					supGifUser = new SuperGif({ gif: document.getElementById('inputImg_1') } );
+					supGifUser.load(function hola() { 
+						document.getElementById("contGif_1").style.display = "none";
+
+						document.getElementById("btnCreateGif").disabled = false;
+
+					});
+
+					document.getElementById("contGif_1").style.display = "none";
+				}
+
+				function showLoadingSpinner(value) {
+					document.getElementById("loading").style.display = value ? "block": "none" ;
+				}
+
+				document.getElementById('files').addEventListener('change', handleFileSelect, false);
+			</script>
+
+
+	</body>
+
+</html>
