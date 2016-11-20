@@ -8,20 +8,23 @@ window.onload = function(){
 	showLoadingSpinner(false);
 }
 
-sup1 = new SuperGif({ gif: document.getElementById('canvas_libgif') } );
-sup1.load(function hola() { 
-	createSlider(sup1.get_length());
-	var canvas = document.getElementById('cabesa');
-	drawImageInCanvas(sup1.get_canvas());
-	canvas.addEventListener("mousedown", function(evt) {
-		getPosition(evt, 'cabesa') },false); 
-	var canvasPreview = document.getElementById('myCanvas');
-	canvasPreview.addEventListener("mousedown", function(evt) {
-		getPosition(evt, 'myCanvas') },false);
-	document.getElementById("cabesa").style.display = "none"
+function loadSuperGif(elementId) {
+	sup1 = new SuperGif({ gif: document.getElementById(elementId) } );
+	sup1.load(function hola() { 
+		debugger
+		createSlider(sup1.get_length());
+		var canvas = document.getElementById('cabesa');
+		drawImageInCanvas(sup1.get_canvas());
+		canvas.addEventListener("mousedown", function(evt) {
+			getPosition(evt, 'cabesa') }, false); 
+		var canvasPreview = document.getElementById('myCanvas');
+		canvasPreview.addEventListener("mousedown", function(evt) {
+			getPosition(evt, 'myCanvas') }, false);
+		document.getElementById("cabesa").style.display = "none";
 	});
-
-document.getElementById("cabesa").style.display = "none"
+}
+loadSuperGif("canvas_libgif");
+document.getElementById("cabesa").style.display = "none";
 
 var recordedSteps = [];
 var isRecording = true;
@@ -176,6 +179,63 @@ function selectInput(e)
 	addBorderToSelectedInput(selectedImageInput);
 }
 
+
+
+function resize(mode) {
+	var img = document.getElementById(selectedImageInput);
+	if (img === null || img === undefined) {
+		alert("Select any image input");
+		return
+	}
+
+	if (mode) {
+		img.width += 10;
+	}
+	else {
+		if (img.width > 10) {
+			img.width -= 10;							
+		}
+	}
+}
+
+function showLoadingSpinner(value) {
+	document.getElementById("loading").style.display = value ? "block": "none" ;
+}
+
+function createSlider(maxSteps) {
+	debugger
+	if (document.getElementById("slider").noUiSlider !== undefined) {
+		document.getElementById("slider").noUiSlider.destroy();		
+	}
+	rangeSlider = document.getElementById('slider');
+	noUiSlider.create(rangeSlider, {
+		start: [ 0 ],
+		step: 1,
+		connect : 'lower',
+		range: {
+		  'min': 0,
+		  'max': maxSteps
+		}
+	});
+
+	var rangeSliderValueElement = document.getElementById('slider-range-value');
+
+	rangeSlider.noUiSlider.on('update', function( values, handle ) {
+		rangeSliderValueElement.innerHTML = parseInt(values[handle]);
+	});
+
+	rangeSlider.noUiSlider.on('change', function( values, handle){
+		var valueSelected = parseInt(values[handle]);
+		sup1.move_to(valueSelected);
+		drawImageInCanvas(sup1.get_canvas());
+
+		if (recordedSteps[sup1.get_current_frame()] !== undefined) {
+			overlap(recordedSteps[sup1.get_current_frame()].pos);
+		}
+		return false;
+	});
+}
+
 // ------------ INPUT
 function handleFileSelect(evt) {
 	var files = evt.target.files; // FileList object
@@ -221,55 +281,46 @@ function handleFileSelect(evt) {
 	//document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
 
-function resize(mode) {
-	var img = document.getElementById(selectedImageInput);
-	if (img === null || img === undefined) {
-		alert("Select any image input");
-		return
+function handleBaseGifFile(evt) {
+	var files = evt.target.files; // FileList object
+
+	// files is a FileList of File objects. List some properties.
+  	var num = 0;
+
+	var output = [];
+	for (var i = 0, f; f = files[i]; i++) {
+		debugger
+	  // Only process image files.
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+
+      var reader = new FileReader();
+        num += 1;
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile, num) {
+        return function(e) {
+          	var span = document.createElement('span');
+          	var id = "baseGif_" + num.toString();
+          	span.innerHTML = ['<img class="thumb" rel:animated_src="', e.target.result, 
+                            '" rel:auto_play="0" width="467" height="375" ',
+                            'style="display:none;"',
+                            '" id="', id,'"/>' 
+                            ].join('');
+        	debugger
+			span.addEventListener('mousedown', selectInput, false);
+			document.getElementById('newGif').appendChild(span, null);
+
+        	loadSuperGif(id);
+        };
+        console.log('a');
+      })(f, num);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
 	}
-
-	if (mode) {
-		img.width += 10;
-	}
-	else {
-		if (img.width > 10) {
-			img.width -= 10;							
-		}
-	}
-}
-
-function showLoadingSpinner(value) {
-	document.getElementById("loading").style.display = value ? "block": "none" ;
-}
-
-function createSlider(maxSteps) {
-	rangeSlider = document.getElementById('slider');
-	noUiSlider.create(rangeSlider, {
-		start: [ 0 ],
-		step: 1,
-		connect : 'lower',
-		range: {
-		  'min': 0,
-		  'max': maxSteps
-		}
-	});
-
-	var rangeSliderValueElement = document.getElementById('slider-range-value');
-
-	rangeSlider.noUiSlider.on('update', function( values, handle ) {
-		rangeSliderValueElement.innerHTML = parseInt(values[handle]);
-	});
-
-	rangeSlider.noUiSlider.on('change', function( values, handle){
-		var valueSelected = parseInt(values[handle]);
-		sup1.move_to(valueSelected);
-		drawImageInCanvas(sup1.get_canvas());
-
-		if (recordedSteps[sup1.get_current_frame()] !== undefined) {
-			overlap(recordedSteps[sup1.get_current_frame()].pos);
-		}
-		return false;
-	});
 }
 
 document.getElementById('files').addEventListener('change', handleFileSelect, false);
+document.getElementById('baseGif').addEventListener('change', handleBaseGifFile, false);
