@@ -32,24 +32,27 @@
 
 				<div id="preview">
 					<h3>Preview</h3>
-					<h6>Load base gif: </h6>
+					<span>Load base gif: </span>
 					<input type="file" id="baseGif" name="files[]"/>
 					<div id="newGif" style="display:none;"></div>
-					<br>
-					<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
-					<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
-					<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
-					<a href="javascript:;" onmousedown="sup1.move_relative(1); return false;">Step forward</a> |
-					<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
-					<a href="javascript:;" onmousedown="recording()">Record</a>
 					<br><br>
-
+					<div id="divControlsPlay">
+						<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
+						<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
+						<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
+						<a href="javascript:;" onmousedown="sup1.move_relative(1); return false;">Step forward</a> |
+						<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
+						<a href="javascript:;" onmousedown="recording()">Record</a>
+					</div>
+					<br><br>
 					<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
 					<br><br>
 
-					<div id="slider"></div>
-					<div id="slider-range-value"></div>
-
+					<div id="divSlider">
+						<div id="slider"></div>
+						<div id="slider-range-value"></div>
+					</div>
+					
 					<h3>Record the gif</h3>
 					<button onclick="createGif()">Crear gif</button>
 				</div>

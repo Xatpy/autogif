@@ -11,18 +11,25 @@ window.onload = function(){
 function loadSuperGif(elementId) {
 	sup1 = new SuperGif({ gif: document.getElementById(elementId) } );
 	sup1.load(function hola() { 
-		debugger
 		createSlider(sup1.get_length());
 		var canvas = document.getElementById('cabesa');
 		drawImageInCanvas(sup1.get_canvas());
 		canvas.addEventListener("mousedown", function(evt) {
-			getPosition(evt, 'cabesa') }, false); 
+				getPosition(evt, 'cabesa');
+				evt.stopImmediatePropagation();
+			}, false); 
 		var canvasPreview = document.getElementById('myCanvas');
 		canvasPreview.addEventListener("mousedown", function(evt) {
-			getPosition(evt, 'myCanvas') }, false);
+				debugger
+				getPosition(evt, 'myCanvas');
+				evt.stopImmediatePropagation();
+			}, false);
 		document.getElementById("cabesa").style.display = "none";
+
+		showLoadingSpinner(false);
 	});
 }
+
 loadSuperGif("canvas_libgif");
 document.getElementById("cabesa").style.display = "none";
 
@@ -30,7 +37,6 @@ var recordedSteps = [];
 var isRecording = true;
 
 function createGif(){
-
 	var c=document.getElementById("myCanvas");
 	var ctx=c.getContext("2d");
 	var img = document.getElementById('cabesa');
@@ -51,9 +57,11 @@ function createGif(){
 		ctx.drawImage(sup1.get_canvas(),0,0);
 		if (i < recordedSteps.length) 
 		{
-			var img = document.getElementById(recordedSteps[i].image);
-			ctx.drawImage(img, recordedSteps[i].pos.x, recordedSteps[i].pos.y, 
-							   recordedSteps[i].width, recordedSteps[i].height);
+			if ((recordedSteps[i] !== undefined) && (recordedSteps[i].image !== undefined)) {
+				var img = document.getElementById(recordedSteps[i].image);
+				ctx.drawImage(img, recordedSteps[i].pos.x, recordedSteps[i].pos.y, 
+								   recordedSteps[i].width, recordedSteps[i].height);
+			}
 		}    					
 		encoder.addFrame(ctx);
 	}
@@ -96,7 +104,6 @@ function getPosition(evt, canvasId)
 
 	overlap(position);
 
-
 	if (!isRecording)
 	{
 		alert("NOT RECORDING!");
@@ -104,10 +111,11 @@ function getPosition(evt, canvasId)
 		return;
 	}
 
-		// 25 = 50 / 2; 50 is the hardcoded value when we draw
-		var step =  {  pos: position , image: selectedImageInput, width: img.width , height : img.height }
+	// 25 = 50 / 2; 50 is the hardcoded value when we draw
+	var step =  {  pos: position , image: selectedImageInput, width: img.width , height : img.height }
 	//recordedSteps.push( step );
 	recordedSteps[sup1.get_current_frame()] = step;
+	debugger
 	sup1.move_relative(1);
 
 	rangeSlider.noUiSlider.set(sup1.get_current_frame());
@@ -168,18 +176,13 @@ function addBorderToSelectedInput(selectedImageInput) {
 // Function to select the input image that will be overwrite
 function selectInput(e)
 {
-	debugger
 	var newInput = e.target ? e.target.id : e.srcElement.id;
-
 	if (newInput === selectedImageInput){
 		return;
 	}
 	selectedImageInput = newInput;
-
 	addBorderToSelectedInput(selectedImageInput);
 }
-
-
 
 function resize(mode) {
 	var img = document.getElementById(selectedImageInput);
@@ -203,7 +206,6 @@ function showLoadingSpinner(value) {
 }
 
 function createSlider(maxSteps) {
-	debugger
 	if (document.getElementById("slider").noUiSlider !== undefined) {
 		document.getElementById("slider").noUiSlider.destroy();		
 	}
@@ -260,8 +262,7 @@ function handleFileSelect(evt) {
           var id = "inputImg_" + num.toString();
           span.innerHTML = ['<img class="thumb" src="', e.target.result,
                             '" title="', escape(theFile.name), 
-                            '" style=" max-height: 200px; max-width: 200px;',
-                            'margin: 50px',
+                            '" class="', "inputImageStyle",
                             '" id="', id,'"/>' 
                             ].join('');
           span.addEventListener('mousedown', selectInput, false);
@@ -282,44 +283,61 @@ function handleFileSelect(evt) {
 }
 
 function handleBaseGifFile(evt) {
-	var files = evt.target.files; // FileList object
+		var files = evt.target.files; // FileList object
 
-	// files is a FileList of File objects. List some properties.
-  	var num = 0;
+		// files is a FileList of File objects. List some properties.
+	  	var num = 0;
 
-	var output = [];
-	for (var i = 0, f; f = files[i]; i++) {
-		debugger
-	  // Only process image files.
-      if (!f.type.match('image.*')) {
-        continue;
-      }
+		var output = [];
+		for (var i = 0, f; f = files[i]; i++) {
+			// Only process gif image
+			if (!f.type.match('image.gif')) {
+				alert("Select a GIF image");
+				continue;
+			}
 
-      var reader = new FileReader();
-        num += 1;
+		  	var reader = new FileReader();
+		    num += 1;
 
-      // Closure to capture the file information.
-      reader.onload = (function(theFile, num) {
-        return function(e) {
-          	var span = document.createElement('span');
-          	var id = "baseGif_" + num.toString();
-          	span.innerHTML = ['<img class="thumb" rel:animated_src="', e.target.result, 
-                            '" rel:auto_play="0" width="467" height="375" ',
-                            'style="display:none;"',
-                            '" id="', id,'"/>' 
-                            ].join('');
-        	debugger
-			span.addEventListener('mousedown', selectInput, false);
-			document.getElementById('newGif').appendChild(span, null);
+			showLoadingSpinner(true);
 
-        	loadSuperGif(id);
-        };
-        console.log('a');
-      })(f, num);
+			// Closure to capture the file information.
+			reader.onload = (function(theFile, num) {
+				return function(e) {
+					var span = document.createElement('span');
+					var id = "baseGif_" + num.toString();
 
-      // Read in the image file as a data URL.
-      reader.readAsDataURL(f);
-	}
+				    var image = new Image();
+				    image.src = e.target.result;
+
+				    image.onload = function() {
+						debugger
+
+				    	var width = image.width;
+				    	var height = image.height;
+
+				        span.innerHTML = ['<img class="thumb" rel:animated_src="', e.target.result, 
+					            '" rel:auto_play="0"',
+					            ' width="', width,
+					            '" height="', height,
+					            '"" style="display:none;"',
+					            '" id="', id,'"/>' 
+					            ].join('');
+						span.addEventListener('mousedown', selectInput, false);
+						document.getElementById('newGif').appendChild(span, null);
+
+						loadSuperGif(id);
+
+						document.getElementById("myCanvas").width = width;
+						document.getElementById("myCanvas").height = height;
+				    };									
+				};
+				console.log('a');
+			})(f, num);
+
+			// Read in the image file as a data URL.
+			reader.readAsDataURL(f);
+		}
 }
 
 document.getElementById('files').addEventListener('change', handleFileSelect, false);

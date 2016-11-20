@@ -49,6 +49,25 @@ body {
     text-align: center;
 }
 
+#divSlider {
+    display: flex;
+    justify-content: center;
+}
+
+#slider {
+    width: 50%;
+}
+
+#slider-range-value {
+    margin-left: 20px;
+}
+
+.inputImageStyle {
+    max-height: 200px;
+    max-width: 200px;
+    margin: 50px;
+}
+
 .buttonScale {
 	width: 10%;
 }
