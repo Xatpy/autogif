@@ -67,7 +67,7 @@ function createGif(){
 	}
 
 	function gifCreated() {
-		console.log("se acaboooooo");
+		console.log("gif created!");
     	encoder.finish();
 		document.getElementById('image').src = 'data:image/gif;base64,'+ encode64(encoder.stream().getData());
 		showLoadingSpinner(false);
@@ -205,6 +205,43 @@ function showLoadingSpinner(value) {
 	document.getElementById("loading").style.display = value ? "block": "none" ;
 }
 
+function controlButton(type) {
+
+	if (type === "restart") {
+		controlPreviewSlider(0); 
+	} else if (type === 'forward') {
+		controlPreviewSlider(sup1.get_current_frame() + 1); 
+	} else if (type === 'back') {
+		controlPreviewSlider(sup1.get_current_frame() - 1); 
+	}
+
+	return false;
+}
+
+function controlRestart() {
+
+}
+
+function controlPreviewSlider(value) {
+	moveImageBySlider(value);
+	updateSliderCounterValue(value);
+	document.getElementById("slider").noUiSlider.set(value);
+}
+
+function moveImageBySlider(valueSelected){
+	sup1.move_to(valueSelected);
+	drawImageInCanvas(sup1.get_canvas());
+	if (recordedSteps[sup1.get_current_frame()] !== undefined) {
+		overlap(recordedSteps[sup1.get_current_frame()].pos);
+	}
+	return false;
+}
+
+function updateSliderCounterValue(value) {
+	var rangeSliderValueElement = document.getElementById('slider-range-value');
+	rangeSliderValueElement.innerHTML = value;
+}
+
 function createSlider(maxSteps) {
 	if (document.getElementById("slider").noUiSlider !== undefined) {
 		document.getElementById("slider").noUiSlider.destroy();		
@@ -220,21 +257,12 @@ function createSlider(maxSteps) {
 		}
 	});
 
-	var rangeSliderValueElement = document.getElementById('slider-range-value');
-
 	rangeSlider.noUiSlider.on('update', function( values, handle ) {
-		rangeSliderValueElement.innerHTML = parseInt(values[handle]);
+		updateSliderCounterValue(parseInt(values[handle]));
 	});
 
 	rangeSlider.noUiSlider.on('change', function( values, handle){
-		var valueSelected = parseInt(values[handle]);
-		sup1.move_to(valueSelected);
-		drawImageInCanvas(sup1.get_canvas());
-
-		if (recordedSteps[sup1.get_current_frame()] !== undefined) {
-			overlap(recordedSteps[sup1.get_current_frame()].pos);
-		}
-		return false;
+		moveImageBySlider(parseInt(values[handle]));
 	});
 }
 
@@ -260,9 +288,8 @@ function handleFileSelect(evt) {
         return function(e) {
           var span = document.createElement('span');
           var id = "inputImg_" + num.toString();
-          span.innerHTML = ['<img class="thumb" src="', e.target.result,
-                            '" title="', escape(theFile.name), 
-                            '" class="', "inputImageStyle",
+          span.innerHTML = ['<img class="thumb inputImageStyle" src="', e.target.result,
+                            '" title="', escape(theFile.name),
                             '" id="', id,'"/>' 
                             ].join('');
           span.addEventListener('mousedown', selectInput, false);

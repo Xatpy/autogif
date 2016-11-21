@@ -16,58 +16,60 @@
 	</header>
 	<div id="main">
 		<div id="content">
-			<div id="inputDiv">
-				<h3>Input</h3>
-				<input type="file" id="files" name="files[]" multiple/>
-				<div id="listInputImg"></div>
-				<button class="buttonScale" onclick="resize(true)">+</button>
-				<button class="buttonScale" onclick="resize(false)">-</button>
+			<div id="firstRow">
+				<div id="inputDiv">
+					<h3>Input</h3>
+					<input type="file" id="files" name="files[]" multiple/>
+					<div id="listInputImg"></div>
+					<button class="buttonScale" onclick="resize(true)">+</button>
+					<button class="buttonScale" onclick="resize(false)">-</button>
+				</div>
+
+				<div id="divModifyGif">
+					<div id="inputGif">
+						<img id="canvas_libgif" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" style="display:none;"/>
+					</div>
+
+					<div id="preview">
+						<h3>Preview</h3>
+						<span>Load base gif: </span>
+						<input type="file" id="baseGif" name="files[]"/>
+						<div id="newGif" style="display:none;"></div>
+						<div id="divControlsPlay">
+							<!-- <a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
+							<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> | -->
+							<a href="javascript:;" onmousedown="controlButton('restart')">Restart</a> |
+							<a href="javascript:;" onmousedown="controlButton('forward')">Step forward</a> |
+							<a href="javascript:;" onmousedown="controlButton('back')">Step back</a> | 
+						</div>
+						<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
+						<br><br>
+
+						<div id="divSlider">
+							<div id="slider"></div>
+							<div id="slider-range-value"></div>
+						</div>
+					</div>
+
+					<div id="divCreate">
+						<h3>Record the gif</h3>
+						<div>
+							<button class="btnCreate" onclick="createGif()">Crear gif</button>
+						</div>
+					</div>
+				</div>
 			</div>
 
-			<div id="divModifyGif">
-				<div id="inputGif">
-					<img id="canvas_libgif" rel:animated_src="./assets/kP.gif" rel:auto_play="0" width="467" height="375" style="display:none;"/>
-					<br>
-				</div>
-
-				<div id="preview">
-					<h3>Preview</h3>
-					<span>Load base gif: </span>
-					<input type="file" id="baseGif" name="files[]"/>
-					<div id="newGif" style="display:none;"></div>
-					<br><br>
-					<div id="divControlsPlay">
-						<a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
-						<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> |
-						<a href="javascript:;" onmousedown="sup1.move_to(0); return false;">Restart</a> |
-						<a href="javascript:;" onmousedown="sup1.move_relative(1); return false;">Step forward</a> |
-						<a href="javascript:;" onmousedown="sup1.move_relative(-1); return false;">Step back</a> | 
-						<a href="javascript:;" onmousedown="recording()">Record</a>
-					</div>
-					<br><br>
-					<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
-					<br><br>
-
-					<div id="divSlider">
-						<div id="slider"></div>
-						<div id="slider-range-value"></div>
-					</div>
-					
-					<h3>Record the gif</h3>
-					<button onclick="createGif()">Crear gif</button>
-				</div>
-
-				<div id="divResult">
-					<h3>Output</h3>
-					<img id="image" width="320" height="233">
-				</div>
-
-				<div id="loading">
-					<br><br>
-					<h2>Loading...</h2>
-					<!--<img id="loading-image" src="./assets/loading.gif" alt="Loading..." />-->
-				</div>  
+			<div id="secondRow">
+				<h3>Output</h3>
+				<img id="image" width="320" height="233">
 			</div>
+
+			<div id="loading">
+				<br><br>
+				<h2>Loading...</h2>
+				<!--<img id="loading-image" src="./assets/loading.gif" alt="Loading..." />-->
+			</div>  
 		</div>
 	</div>
 

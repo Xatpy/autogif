@@ -39,7 +39,7 @@ body {
 }
 
 #content {
-    width: 90%;
+    width: 95%;
     display: -webkit-flex; /* Safari */
     -webkit-flex-wrap: wrap; /* Safari 6.1+ */
     display: flex;
@@ -52,6 +52,11 @@ body {
 #divSlider {
     display: flex;
     justify-content: center;
+    margin-bottom: 20px;
+}
+
+#divCreate {
+    width: 10%;
 }
 
 #slider {
@@ -62,14 +67,53 @@ body {
     margin-left: 20px;
 }
 
+#firstRow {
+    display: flex;
+    width: 100%;
+    border: 3px solid #ccc;
+}
+
+#secondRow {
+    margin-top: 15px;
+    padding: 20px;
+    border: 3px solid #ccc;
+    width: 95%;
+}
+
+#inputGif {
+    width: 1%;
+}
+
+#preview {
+    width: 80%;
+}
+
+#divModifyGif {
+    display: flex;
+    /*justify-content: center;*/
+    width: 100%;
+}
+
+#divControlsPlay {
+    margin: 7px;
+}
+
+#inputDiv {
+    width: 40%;
+}
+
 .inputImageStyle {
-    max-height: 200px;
-    max-width: 200px;
-    margin: 50px;
+    max-height: 90%;
+    max-width: 50%;
+    margin: 10px;
 }
 
 .buttonScale {
 	width: 10%;
+}
+
+.btnCreate {
+    margin-top: 50px;
 }
 
 .button {
