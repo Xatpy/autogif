@@ -21,6 +21,7 @@
 					<h3>Input</h3>
 					<input type="file" id="files" name="files[]" multiple/>
 					<div id="listInputImg"></div>
+					<span>Scale buttons:</span>
 					<button class="buttonScale" onclick="resize(true)">+</button>
 					<button class="buttonScale" onclick="resize(false)">-</button>
 				</div>
@@ -39,8 +40,8 @@
 							<!-- <a href="javascript:;" onmousedown="sup1.pause(); return false;">Pause</a> |
 							<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> | -->
 							<a href="javascript:;" onmousedown="controlButton('restart')">Restart</a> |
-							<a href="javascript:;" onmousedown="controlButton('forward')">Step forward</a> |
-							<a href="javascript:;" onmousedown="controlButton('back')">Step back</a> | 
+							<a href="javascript:;" onmousedown="controlButton('back')">Step back</a> |
+							<a href="javascript:;" onmousedown="controlButton('forward')">Step forward</a>
 						</div>
 						<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
 						<br><br>

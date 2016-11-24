@@ -1,5 +1,6 @@
 //-------------- Globals variables --------------
 var selectedImageInput = 1;
+var countImages = 0;
 var sup1;
 var rangeSlider;
 
@@ -20,7 +21,6 @@ function loadSuperGif(elementId) {
 			}, false); 
 		var canvasPreview = document.getElementById('myCanvas');
 		canvasPreview.addEventListener("mousedown", function(evt) {
-				debugger
 				getPosition(evt, 'myCanvas');
 				evt.stopImmediatePropagation();
 			}, false);
@@ -115,7 +115,6 @@ function getPosition(evt, canvasId)
 	var step =  {  pos: position , image: selectedImageInput, width: img.width , height : img.height }
 	//recordedSteps.push( step );
 	recordedSteps[sup1.get_current_frame()] = step;
-	debugger
 	sup1.move_relative(1);
 
 	rangeSlider.noUiSlider.set(sup1.get_current_frame());
@@ -174,11 +173,17 @@ function addBorderToSelectedInput(selectedImageInput) {
 }
 
 // Function to select the input image that will be overwrite
-function selectInput(e)
+function selectInput(e, id)
 {
-	var newInput = e.target ? e.target.id : e.srcElement.id;
-	if (newInput === selectedImageInput){
-		return;
+	debugger
+	var newInput;
+	if (id !== undefined) {
+		newInput = id;
+	} else {
+		newInput = e.target ? e.target.id : e.srcElement.id;
+		if (newInput === selectedImageInput){
+			return;
+		}
 	}
 	selectedImageInput = newInput;
 	addBorderToSelectedInput(selectedImageInput);
@@ -269,36 +274,34 @@ function createSlider(maxSteps) {
 // ------------ INPUT
 function handleFileSelect(evt) {
 	var files = evt.target.files; // FileList object
-
-	// files is a FileList of File objects. List some properties.
   	var num = 0;
 
 	var output = [];
 	for (var i = 0, f; f = files[i]; i++) {
-	  // Only process image files.
-      if (!f.type.match('image.*')) {
-        continue;
-      }
+		// Only process image files.
+		if (!f.type.match('image.*')) {
+			continue;
+		}
 
-      var reader = new FileReader();
-        num += 1;
+	  	var reader = new FileReader();
+	    num += 1;
 
-      // Closure to capture the file information.
-      reader.onload = (function(theFile, num) {
-        return function(e) {
-          var span = document.createElement('span');
-          var id = "inputImg_" + num.toString();
-          span.innerHTML = ['<img class="thumb inputImageStyle" src="', e.target.result,
-                            '" title="', escape(theFile.name),
-                            '" id="', id,'"/>' 
-                            ].join('');
-          span.addEventListener('mousedown', selectInput, false);
-          document.getElementById('listInputImg').insertBefore(span, null);
-          if (num === 1) {
-          	// Select the fir st element automatically
-			selectedImageInput = id;
-          	addBorderToSelectedInput(selectedImageInput);
-          }
+      	// Closure to capture the file information.
+      	reader.onload = (function(theFile, num) {
+		return function(e) {
+			countImages += 1;
+			var span = document.createElement('span');
+			var id = "inputImg_" + countImages.toString();
+			span.innerHTML = ['<img class="thumb inputImageStyle" src="', e.target.result,
+			                '" title="', escape(theFile.name),
+			                '" id="', id,'"/>' 
+			                ].join('');
+			span.addEventListener('mousedown', selectInput, false);
+			debugger
+			document.getElementById('listInputImg').insertBefore(span, null);
+			if (num === 1) {
+				selectInput(e, id);
+			}
         };
         console.log('a');
       })(f, num);
@@ -338,8 +341,6 @@ function handleBaseGifFile(evt) {
 				    image.src = e.target.result;
 
 				    image.onload = function() {
-						debugger
-
 				    	var width = image.width;
 				    	var height = image.height;
 
