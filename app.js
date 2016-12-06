@@ -34,7 +34,6 @@ loadSuperGif("canvas_libgif");
 document.getElementById("cabesa").style.display = "none";
 
 var recordedSteps = [];
-var isRecording = true;
 
 function createGif(){
 	var c=document.getElementById("myCanvas");
@@ -83,8 +82,8 @@ function createGif(){
 	    	gifCreated();
 	    }
 	};
+
 	loopCreateGifWithoutBlocking(i);
-	
 }
 
 function getPosition(evt, canvasId)
@@ -102,28 +101,27 @@ function getPosition(evt, canvasId)
 	position.x = mousePos.x - (img.width / 2);
 	position.y= mousePos.y - (img.height / 2);
 
-	overlap(position);
-
-	if (!isRecording)
-	{
-		alert("NOT RECORDING!");
-		overlap(position);
-		return;
-	}
+	//overlapNewImage(position);
 
 	// 25 = 50 / 2; 50 is the hardcoded value when we draw
 	var step =  {  pos: position , image: selectedImageInput, width: img.width , height : img.height }
 	//recordedSteps.push( step );
 	recordedSteps[sup1.get_current_frame()] = step;
-	sup1.move_relative(1);
 
-	rangeSlider.noUiSlider.set(sup1.get_current_frame());
+	//sup1.move_relative(1);
+	//rangeSlider.noUiSlider.set(sup1.get_current_frame());
+
+	if (document.getElementById("checkAuto").checked) {
+		controlPreviewSlider(sup1.get_current_frame() + 1);
+	} else {
+		overlapNewImage(position);
+	}
 }
 
-function overlap(position)
+function overlapNewImage(position)
 {
-	var c=document.getElementById("myCanvas");
-	var ctx=c.getContext("2d");
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
 	var img = document.getElementById(selectedImageInput);
 
 	if (img === null) {
@@ -140,14 +138,6 @@ function drawImageInCanvas(canvas)
 	var c=document.getElementById("myCanvas");
 	var ctx=c.getContext("2d");
 	ctx.drawImage(canvas,0,0);
-}
-
-function recording()
-{
-	sup1.move_to(0); 
-	isRecording = true;
-
-	return false;
 }
 
 function getMousePos(canvas, evt) {
@@ -215,9 +205,9 @@ function controlButton(type) {
 	if (type === "restart") {
 		controlPreviewSlider(0); 
 	} else if (type === 'forward') {
-		controlPreviewSlider(sup1.get_current_frame() + 1); 
+		controlPreviewSlider(sup1.get_current_frame() + 1);
 	} else if (type === 'back') {
-		controlPreviewSlider(sup1.get_current_frame() - 1); 
+		controlPreviewSlider(sup1.get_current_frame() - 1);
 	}
 
 	return false;
@@ -234,10 +224,11 @@ function controlPreviewSlider(value) {
 }
 
 function moveImageBySlider(valueSelected){
+	debugger
 	sup1.move_to(valueSelected);
 	drawImageInCanvas(sup1.get_canvas());
 	if (recordedSteps[sup1.get_current_frame()] !== undefined) {
-		overlap(recordedSteps[sup1.get_current_frame()].pos);
+		overlapNewImage(recordedSteps[sup1.get_current_frame()].pos);
 	}
 	return false;
 }
@@ -269,6 +260,10 @@ function createSlider(maxSteps) {
 	rangeSlider.noUiSlider.on('change', function( values, handle){
 		moveImageBySlider(parseInt(values[handle]));
 	});
+}
+
+function download() {
+	console.log("download");
 }
 
 // ------------ INPUT

@@ -17,13 +17,13 @@
 	<div id="main">
 		<div id="content">
 			<div id="firstRow">
-				<div id="inputDiv">
-					<h3>Input</h3>
+				<div id="divInput">
+					<h3>Input images</h3>
 					<input type="file" id="files" name="files[]" multiple/>
 					<div id="listInputImg"></div>
 					<span>Scale buttons:</span>
-					<button class="buttonScale" onclick="resize(true)">+</button>
 					<button class="buttonScale" onclick="resize(false)">-</button>
+					<button class="buttonScale" onclick="resize(true)">+</button>
 				</div>
 
 				<div id="divModifyGif">
@@ -41,7 +41,8 @@
 							<a href="javascript:;" onmousedown="sup1.play(); return false;">Play</a> | -->
 							<a href="javascript:;" onmousedown="controlButton('restart')">Restart</a> |
 							<a href="javascript:;" onmousedown="controlButton('back')">Step back</a> |
-							<a href="javascript:;" onmousedown="controlButton('forward')">Step forward</a>
+							<a href="javascript:;" onmousedown="controlButton('forward')">Step forward</a> |
+							<input type="checkbox" id="checkAuto" value="Auto advance" checked> Auto
 						</div>
 						<canvas id="myCanvas" width="320" height="233" style=";"></canvas>
 						<br><br>
@@ -55,7 +56,7 @@
 					<div id="divCreate">
 						<h3>Record the gif</h3>
 						<div>
-							<button class="btnCreate" onclick="createGif()">Crear gif</button>
+							<button class="btnCreate" onclick="createGif()">Create gif</button>
 						</div>
 					</div>
 				</div>
@@ -64,6 +65,9 @@
 			<div id="secondRow">
 				<h3>Output</h3>
 				<img id="image" width="320" height="233">
+				<p>
+					Download: Right click on the image --> (Save image as...)
+				</p>
 			</div>
 
 			<div id="loading">
@@ -82,7 +86,6 @@
 	<script src="./jsgif/LZWEncoder.js"></script>
 	<script src="./jsgif/NeuQuant.js"></script>
 	<script src="./jsgif/GIFEncoder.js"></script>
-
 
 	<script src="app.js"></script>
 
